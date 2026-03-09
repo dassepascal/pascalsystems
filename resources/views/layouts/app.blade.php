@@ -1,80 +1,164 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pascal Systems | @yield('title', 'Architectures Automatisées')</title>
+    
+    <!-- Tailwind CSS & Fonts (CDN pour la simplicité) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg': '#09090b', 'card': '#111111', 'accent': '#3b82f6',
+                        'text-main': '#f4f4f5', 'text-muted': '#a1a1aa',
+                    },
+                    fontFamily: {
+                        'heading': ['"Space Grotesk"', 'sans-serif'],
+                        'body': ['"Inter"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
 
-@section('title', 'Réserver un appel')
-
-@section('content')
-<main class="flex-grow flex items-center justify-center px-6 py-24 md:py-32">
-    <div class="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+    <!-- Styles globaux -->
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; background-color: #09090b; color: #f4f4f5; overflow-x: hidden; }
+        h1, h2, h3, label { font-family: 'Space Grotesk', sans-serif; }
         
-        <!-- Left Column -->
-        <div class="reveal">
-            <span class="inline-block text-xs uppercase tracking-widest text-accent mb-4 border border-accent/30 rounded-full px-4 py-2">Appel de Découverte</span>
-            <h1 class="text-4xl md:text-5xl font-bold mb-6 tracking-tight leading-tight">
-                30 minutes pour <br><span class="text-accent">clarifier</span> vos systèmes.
-            </h1>
-            <p class="text-text-muted text-lg mb-10 leading-relaxed">
-                Un échange sans engagement pour identifier vos goulots d'étranglement.
-            </p>
-            <div class="space-y-5">
-                <div class="flex items-start gap-4">
-                    <div class="feature-bullet mt-1"><div class="w-2 h-2 bg-accent rounded-full"></div></div>
-                    <div><h4 class="font-semibold text-white">Analyse rapide</h4><p class="text-sm text-text-muted">Nous examinons vos processus actuels.</p></div>
-                </div>
-                <div class="flex items-start gap-4">
-                    <div class="feature-bullet mt-1"><div class="w-2 h-2 bg-accent rounded-full"></div></div>
-                    <div><h4 class="font-semibold text-white">Conseils personnalisés</h4><p class="text-sm text-text-muted">Des solutions concrètes.</p></div>
+        /* Boutons Globaux */
+        .btn-primary {
+            position: relative; background: #3b82f6; padding: 1rem 2.5rem;
+            border-radius: 9999px; font-weight: 500; letter-spacing: 0.025em;
+            transition: all 0.3s ease; border: 1px solid transparent; z-index: 1;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px); background: transparent;
+            border-color: #3b82f6; color: #3b82f6;
+            box-shadow: 0 10px 40px -10px rgba(59, 130, 246, 0.6);
+        }
+        
+        /* Animations Révélation */
+        .reveal { opacity: 0; transform: translateY(40px); transition: all 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+    </style>
+
+    @stack('styles')
+</head>
+<body class="antialiased">
+
+    <!-- Canvas Background (Global) -->
+    <canvas id="canvas-bg" class="fixed top-0 left-0 w-full h-full z-0 opacity-60 pointer-events-none"></canvas>
+
+    <!-- Main Container -->
+    <div class="relative z-10">
+
+        <!-- Navigation -->
+        <nav class="fixed top-0 left-0 right-0 z-50 px-6 py-6 md:px-12 bg-bg/50 backdrop-blur-md border-b border-white/5">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <a href="{{ route('home') }}" class="font-heading text-xl font-bold tracking-tight hover:text-accent transition-colors">
+                    Pascal<span class="text-accent">.</span>Systems
+                </a>
+                
+                <div class="flex items-center gap-6">
+                    <a href="{{ route('audit.create') }}" class="text-sm text-text-muted hover:text-white transition-colors hidden md:block">
+                        Audit
+                    </a>
+                    <a href="{{ route('booking.create') }}" class="btn-primary text-white text-sm py-2 px-4">
+                        Réserver un appel
+                    </a>
                 </div>
             </div>
-        </div>
+        </nav>
 
-        <!-- Right Column: Form -->
-        <div class="glass-card rounded-3xl p-8 md:p-10 reveal" style="transition-delay: 0.15s;">
-            
-            @if(session('status') === 'booking-sent')
-                <div class="text-center py-10">
-                    <div class="text-green-400 mb-4">
-                        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <h3 class="text-2xl font-bold mb-2">Rendez-vous confirmé</h3>
-                    <p class="text-text-muted">Vous allez recevoir un récapitulatif par email.</p>
+        <!-- Le contenu de la page s'injecte ici -->
+        <main>
+            @yield('content')
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-12 px-6 border-t border-white/5 mt-20">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-sm text-text-muted">
+                <div class="font-heading text-lg text-white mb-4 md:mb-0">
+                    Pascal<span class="text-accent">.</span>Systems
                 </div>
-            @else
-                <h3 class="text-xl font-bold mb-6">Choisissez votre créneau</h3>
-                <form action="{{ route('booking.store') }}" method="POST" class="space-y-6">
-                    @csrf
+                <div>&copy; {{ date('Y') }} Pascal Systems. Tous droits réservés.</div>
+            </div>
+        </footer>
 
-                    <div>
-                        <label for="fullname" class="form-label">Nom complet</label>
-                        <input type="text" id="fullname" name="fullname" class="form-input" placeholder="Jean Dupont" value="{{ old('fullname') }}" required>
-                    </div>
-
-                    <div>
-                        <label for="email" class="form-label">Email professionnel</label>
-                        <input type="email" id="email" name="email" class="form-input" placeholder="jean@entreprise.com" value="{{ old('email') }}" required>
-                    </div>
-
-                    <div>
-                        <label for="date" class="form-label">Date souhaitée</label>
-                        <input type="date" id="date" name="date" class="form-input" required>
-                    </div>
-
-                    <div>
-                        <label for="time" class="form-label">Créneau préféré</label>
-                        <select id="time" name="time" class="form-input" required>
-                            <option value="" disabled selected>Choisir une plage horaire</option>
-                            <option value="09h-11h">Matin (09h - 11h)</option>
-                            <option value="14h-16h">Après-midi (14h - 16h)</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <button type="submit" class="btn-submit text-white">Réserver l'appel</button>
-                    </div>
-                </form>
-            @endif
-        </div>
     </div>
-</main>
-@endsection
+
+    <!-- Scripts -->
+    <script src="{{ asset('js/app.js') }}" defer></script> <!-- Si vous avez du JS local -->
+    @stack('scripts')
+    
+    <!-- Script Canvas Minimaliste pour toutes les pages -->
+    <script>
+        const canvas = document.getElementById('canvas-bg');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            let width, height, particles = [];
+            const particleCount = 40;
+            
+            const resize = () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            };
+            
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width; this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+                    this.radius = Math.random() * 1.5 + 0.5;
+                }
+                update() {
+                    this.x += this.vx; this.y += this.vy;
+                    if (this.x < 0 || this.x > width) this.vx *= -1;
+                    if (this.y < 0 || this.y > height) this.vy *= -1;
+                }
+                draw() {
+                    ctx.beginPath(); ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)'; ctx.fill();
+                }
+            }
+            
+            const init = () => {
+                resize();
+                particles = [];
+                for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+            };
+            
+            const animate = () => {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                // Dessiner les connexions
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        if (dist < 150) {
+                            ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(59, 130, 246, ${0.15 * (1 - dist / 150)})`;
+                            ctx.lineWidth = 0.5; ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(animate);
+            };
+            
+            window.addEventListener('resize', resize);
+            init(); animate();
+        }
+    </script>
+</body>
+</html>
