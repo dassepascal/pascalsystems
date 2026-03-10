@@ -101,9 +101,15 @@
         <!-- Navigation -->
         <nav class="fixed top-0 left-0 right-0 z-50 px-6 py-6 md:px-12 bg-bg/50 backdrop-blur-md border-b border-white/5">
             <div class="max-w-7xl mx-auto flex justify-between items-center">
-                <a href="{{ route('home') }}" class="font-heading text-xl font-bold tracking-tight hover:text-accent transition-colors">
-                    Pascal<span class="text-accent">.</span>Systems
-                </a>
+                <a href="{{ route('home') }}" class="flex items-center gap-3 hover:text-accent transition-colors group">
+    <!-- Logo Image -->
+    <img src="{{ asset('storage/photos/logo2.jpg') }}" alt="Logo Pascal Systems" class="h-8 w-auto object-contain">
+    
+    <!-- Texte -->
+    <span class="font-heading text-xl font-bold tracking-tight">
+        Pascal<span class="text-accent">.</span>Systems
+    </span>
+</a>
                 
                 <div class="flex items-center gap-6">
                     <a href="{{ route('audit.create') }}" class="text-sm text-text-muted hover:text-white transition-colors hidden md:block">

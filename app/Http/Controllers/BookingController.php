@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use App\Mail\BookingConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class BookingController extends Controller
 {
@@ -24,7 +26,10 @@ class BookingController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        Booking::create($validated);
+        $booking = Booking::create($validated);
+
+        // Envoi de l'email
+        Mail::to($booking->email)->send(new BookingConfirmation($booking));
 
         return back()->with('status', 'booking-sent');
     }

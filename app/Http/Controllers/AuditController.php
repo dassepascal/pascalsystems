@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\AuditRequest;
 use Illuminate\Http\Request;
+use App\Mail\AuditConfirmation;
+use Illuminate\Support\Facades\Mail;
 
 class AuditController extends Controller
 {
@@ -24,10 +26,20 @@ class AuditController extends Controller
             'message' => 'nullable|string',
         ]);
 
-        AuditRequest::create($validated);
+        $audit = AuditRequest::create($validated);
 
-        // Ici, vous pourriez ajouter l'envoi d'email (Mail::to...)
+        // 1. Email de confirmation au client
+        Mail::to($audit->email)->send(new AuditConfirmation($audit));
+
+        // 2. Email de notification à l'admin (optionnel)
+        // Remplacez 'admin@example.com' par votre vraie adresse email
+        # 
+        Mail::to('pascaldasse56@gmail.com')->send(new AuditConfirmation($audit));
 
         return back()->with('status', 'audit-sent');
     }
-}
+
+        
+
+       
+    }
